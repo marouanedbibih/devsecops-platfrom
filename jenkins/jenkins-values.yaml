@@ -1,0 +1,94 @@
+# Configuration pour le chart Bitnami Jenkins sur K3s
+
+# -- Configuration globale
+global:
+  # -- Classe de stockage par défaut à utiliser pour les Persistent Volumes
+  defaultStorageClass: "" # Utilise la StorageClass par défaut de K3s
+
+# -- Configuration de l'image Jenkins
+image:
+  # -- Registre Docker pour l'image Jenkins
+  registry: docker.io
+  # -- Nom du repository Docker pour l'image Jenkins
+  repository: bitnami/jenkins
+  # -- Tag de l'image Jenkins
+  tag: 2.504.1-debian-12-r1
+  # -- Politique de pull de l'image
+  pullPolicy: IfNotPresent
+
+# -- Configuration de Jenkins
+jenkinsUser: admin
+jenkinsPassword: password
+# -- Liste des plugins Jenkins à installer au démarrage
+plugins:
+  - git
+  - workflow-aggregator
+  - kubernetes
+  - configuration-as-code
+
+# -- Configuration de l'agent Jenkins (désactivé pour l'instant)
+agent:
+  enabled: false
+
+# -- Configuration du déploiement Jenkins
+replicaCount: 1
+updateStrategy:
+  type: RollingUpdate
+
+# -- Configuration des ressources du conteneur Jenkins
+resources:
+  requests:
+    cpu: 1000m # 1 vCPU
+    memory: 2Gi # 2 Go RAM
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+# -- Configuration de la persistance
+persistence:
+  enabled: true
+  size: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  # -- Nom de la StorageClass à utiliser (laisser vide pour utiliser la StorageClass par défaut)
+  storageClass: ""
+
+# -- Configuration du service Jenkins
+service:
+  type: LoadBalancer
+  ports:
+    http: 8080
+    https: 8443
+  # -- Configuration alternative pour exposer via Ingress (à décommenter si besoin)
+  # ingress:
+  #   enabled: true
+  #   hostname: jenkins.example.com # Remplacez par votre nom de domaine
+  #   tls: [] # Configuration TLS si nécessaire
+  #   annotations: {}
+
+# -- Configuration des probes de santé
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 5
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# -- Configuration du contexte de sécurité du Pod
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+  runAsUser: 1001
+  runAsGroup: 1001
+
+# -- Configuration du contexte de sécurité du conteneur
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsGroup: 1001

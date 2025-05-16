@@ -1,0 +1,60 @@
+## Global Parameters
+global:
+  # Using longhorn as the default storage class for all PVCs
+  defaultStorageClass: "longhorn"
+
+## Harbor Common Parameters
+# Set a secure admin password
+adminPassword: "Harbor12345!" # You should change this to a more secure password in production
+
+# Set the external URL (needs to match Ingress hostname)
+externalURL: "http://harbor.localhost"
+
+# Use ingress instead of proxy for exposure
+exposureType: "ingress"
+
+# Set a reasonable log level for production
+logLevel: "info"
+
+# Persistence configuration
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+    jobservice:
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+    database:
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+    redis:
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+    trivy:
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
+# For a minimal deployment, we can use fewer replicas
+portal:
+  replicas: 1
+core:
+  replicas: 1
+jobservice:
+  replicas: 1
+registry:
+  replicas: 1
+trivy:
+  replicas: 1

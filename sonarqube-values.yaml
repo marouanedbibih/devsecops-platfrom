@@ -1,0 +1,49 @@
+# SonarQube Edition (Community)
+edition: "community"
+
+# Database Configuration
+postgresql:
+  enabled: true
+  auth:
+    username: "sonar"
+    password: "sonar"
+    database: "sonarqube"
+  primary:
+    persistence:
+      size: 10Gi
+
+# Admin Credentials
+sonarqubeConfig:
+  sonarProperties:
+    sonar.forceAuthentication: true
+  adminPassword: "admin"  # Change this to your preferred admin password
+  monitoringPasscode: "passcode"
+
+# Resource Allocation
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+
+# Persistence
+persistence:
+  enabled: true
+  storageClass: "longhorn" 
+  size: 5Gi
+
+# Expose SonarQube using NodePort
+service:
+  type: NodePort
+  ports:
+    http:
+      port: 9000
+      nodePort: 30090
+    elastic:
+      port: 9001
+      nodePort: 30091
+
+jvmOpts: "-Xmx1G -Xms1G"
