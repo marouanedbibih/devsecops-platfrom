@@ -1,0 +1,83 @@
+USER-SUPPLIED VALUES:
+addLocal: "true"
+additionalTrustedCAs: false
+agentTLSMode: strict
+antiAffinity: preferred
+auditLog:
+  destination: sidecar
+  hostPath: /var/log/rancher/audit/
+  image:
+    pullPolicy: IfNotPresent
+    repository: rancher/mirrored-bci-micro
+    tag: 15.6.24.2
+  level: 1
+  maxAge: 3
+  maxBackup: 2
+  maxSize: 100
+  resources: {}
+bootstrapPassword: Marouane@2001
+certmanager:
+  version: ""
+customLogos:
+  accessMode: ReadWriteOnce
+  enabled: false
+  size: 1Gi
+  volumeKind: persistentVolumeClaim
+debug: false
+extraNodeSelectorTerms: {}
+extraObjects: []
+extraTolerations: {}
+fleet: ""
+hostname: 116.203.208.170
+imagePullSecrets: []
+ingress:
+  enabled: false
+letsEncrypt:
+  enabled: false
+livenessProbe:
+  failureThreshold: 5
+  periodSeconds: 30
+  timeoutSeconds: 5
+noProxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local
+postDelete:
+  enabled: true
+  ignoreTimeoutError: false
+  image:
+    repository: rancher/shell
+    tag: v0.4.0
+  namespaceList:
+  - cattle-fleet-system
+  - cattle-system
+  - rancher-operator-system
+  timeout: 120
+priorityClassName: rancher-critical
+privateCA: false
+rancherImage: rancher/rancher
+readinessProbe:
+  failureThreshold: 5
+  periodSeconds: 30
+  timeoutSeconds: 5
+replicas: 1
+resources:
+  limits:
+    cpu: 1
+    memory: 3Gi
+  requests:
+    cpu: 250m
+    memory: 1Gi
+service:
+  annotations: {}
+  labels: {}
+  loadBalancerSourceRanges: []
+  nodePorts:
+    http: 30080
+    https: 30443
+  type: NodePort
+startupProbe:
+  failureThreshold: 12
+  periodSeconds: 10
+  timeoutSeconds: 5
+systemDefaultRegistry: ""
+tls: external
+topologyKey: kubernetes.io/hostname
+webhook: ""

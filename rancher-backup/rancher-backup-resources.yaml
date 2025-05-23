@@ -1,0 +1,1603 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2025-05-13T15:48:41Z"
+    generateName: rancher-75f877d8bd-
+    labels:
+      app: rancher
+      pod-template-hash: 75f877d8bd
+      release: rancher
+    name: rancher-75f877d8bd-mcj5p
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: rancher-75f877d8bd
+      uid: dbf29050-3e7b-462e-81c1-42b2aacb7a1d
+    resourceVersion: "2524"
+    uid: a55acd2b-8cea-4195-bf9b-8c838dab29d0
+  spec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+              - windows
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rancher
+            topologyKey: kubernetes.io/hostname
+          weight: 100
+    containers:
+    - args:
+      - --no-cacerts
+      - --http-listen-port=80
+      - --https-listen-port=443
+      - --add-local=true
+      env:
+      - name: CATTLE_NAMESPACE
+        value: cattle-system
+      - name: CATTLE_PEER_SERVICE
+        value: rancher
+      - name: AUDIT_LEVEL
+        value: "1"
+      - name: AUDIT_LOG_MAXAGE
+        value: "3"
+      - name: AUDIT_LOG_MAXBACKUP
+        value: "2"
+      - name: AUDIT_LOG_MAXSIZE
+        value: "100"
+      - name: CATTLE_BOOTSTRAP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: bootstrapPassword
+            name: bootstrap-secret
+      - name: CATTLE_AGENT_TLS_MODE
+        value: strict
+      - name: IMPERATIVE_API_DIRECT
+        value: "true"
+      image: rancher/rancher:v2.11.1
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 5
+        httpGet:
+          path: /healthz
+          port: 80
+          scheme: HTTP
+        periodSeconds: 30
+        successThreshold: 1
+        timeoutSeconds: 5
+      name: rancher
+      ports:
+      - containerPort: 80
+        protocol: TCP
+      - containerPort: 6666
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 5
+        httpGet:
+          path: /healthz
+          port: 80
+          scheme: HTTP
+        periodSeconds: 30
+        successThreshold: 1
+        timeoutSeconds: 5
+      resources:
+        limits:
+          cpu: "1"
+          memory: 3Gi
+        requests:
+          cpu: 250m
+          memory: 1Gi
+      startupProbe:
+        failureThreshold: 12
+        httpGet:
+          path: /healthz
+          port: 80
+          scheme: HTTP
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 5
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/log/auditlog
+        name: audit-log
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fnmpp
+        readOnly: true
+    - args:
+      - -F
+      - /var/log/auditlog/rancher-api-audit.log
+      command:
+      - tail
+      image: rancher/mirrored-bci-micro:15.6.24.2
+      imagePullPolicy: IfNotPresent
+      name: rancher-audit-log
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/log/auditlog
+        name: audit-log
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fnmpp
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-worker-1
+    preemptionPolicy: PreemptLowerPriority
+    priority: 1000000000
+    priorityClassName: rancher-critical
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: rancher
+    serviceAccountName: rancher
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: cattle.io/os
+      operator: Equal
+      value: linux
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - emptyDir: {}
+      name: audit-log
+    - name: kube-api-access-fnmpp
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:49:18Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:48:42Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:49:42Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:49:42Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:48:42Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://6e8360a7617b51b503a5822bf67ea656580bc41347b498eb90a5df9c88ac80e5
+      image: docker.io/rancher/rancher:v2.11.1
+      imageID: docker.io/rancher/rancher@sha256:58500bf830fa8c506766317d8f815c491ccaecb7ba145f36d8435e6ff52f46f1
+      lastState: {}
+      name: rancher
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-05-13T15:49:14Z"
+      volumeMounts:
+      - mountPath: /var/log/auditlog
+        name: audit-log
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fnmpp
+        readOnly: true
+        recursiveReadOnly: Disabled
+    - containerID: containerd://aa3e48aa49274d56a244428099f69fe71a00f70eaa473ada5f2fbd4eb85f9ce5
+      image: docker.io/rancher/mirrored-bci-micro:15.6.24.2
+      imageID: docker.io/rancher/mirrored-bci-micro@sha256:6d9cbebabbf60987f7976263b193337bbb69d8408c5ed89df56c09ef30cece9f
+      lastState: {}
+      name: rancher-audit-log
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-05-13T15:49:18Z"
+      volumeMounts:
+      - mountPath: /var/log/auditlog
+        name: audit-log
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-fnmpp
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 116.203.208.170
+    hostIPs:
+    - ip: 116.203.208.170
+    - ip: 2a01:4f8:1c0c:78fa::1
+    phase: Running
+    podIP: 10.42.1.3
+    podIPs:
+    - ip: 10.42.1.3
+    qosClass: Burstable
+    startTime: "2025-05-13T15:48:42Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2025-05-13T15:51:18Z"
+    generateName: rancher-webhook-55c8df5877-
+    labels:
+      app: rancher-webhook
+      pod-template-hash: 55c8df5877
+    name: rancher-webhook-55c8df5877-68smf
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: rancher-webhook-55c8df5877
+      uid: b28bb50f-f920-48c9-b47a-d620034c3785
+    resourceVersion: "4115"
+    uid: 97d1f6e0-95a8-452e-aa0b-80c72fa4bdbc
+  spec:
+    containers:
+    - env:
+      - name: STAMP
+      - name: ENABLE_MCM
+        value: "true"
+      - name: CATTLE_PORT
+        value: "9443"
+      - name: NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      image: rancher/rancher-webhook:v0.7.1
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /healthz
+          port: https
+          scheme: HTTPS
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: rancher-webhook
+      ports:
+      - containerPort: 9443
+        name: https
+        protocol: TCP
+      resources: {}
+      startupProbe:
+        failureThreshold: 60
+        httpGet:
+          path: /healthz
+          port: https
+          scheme: HTTPS
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-x4x8m
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-worker-1
+    nodeSelector:
+      kubernetes.io/os: linux
+    preemptionPolicy: PreemptLowerPriority
+    priority: 1000000000
+    priorityClassName: rancher-critical
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: rancher-webhook
+    serviceAccountName: rancher-webhook
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: cattle.io/os
+      operator: Equal
+      value: linux
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-x4x8m
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:51:23Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:51:18Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:51:39Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:51:39Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:51:18Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://9faca67c767a8284334bfd544031fac9fb33e3656b3815d0f5f2afa2c7c8899c
+      image: docker.io/rancher/rancher-webhook:v0.7.1
+      imageID: docker.io/rancher/rancher-webhook@sha256:50ef882cdc7a5bcf6304a69972121ecdb92b58f7fd410aae600a8a7ca68caaa7
+      lastState: {}
+      name: rancher-webhook
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-05-13T15:51:22Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-x4x8m
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 116.203.208.170
+    hostIPs:
+    - ip: 116.203.208.170
+    - ip: 2a01:4f8:1c0c:78fa::1
+    phase: Running
+    podIP: 10.42.1.10
+    podIPs:
+    - ip: 10.42.1.10
+    qosClass: BestEffort
+    startTime: "2025-05-13T15:51:18Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2025-05-13T15:52:39Z"
+    generateName: system-upgrade-controller-766f9c8f9d-
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/name: system-upgrade-controller
+      pod-template-hash: 766f9c8f9d
+      upgrade.cattle.io/controller: system-upgrade-controller
+    name: system-upgrade-controller-766f9c8f9d-chvpq
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: system-upgrade-controller-766f9c8f9d
+      uid: 8340550a-819a-4a2e-81bd-ea4351e1a2f2
+    resourceVersion: "4678"
+    uid: 4e780c01-4feb-43e5-837f-b88acb9071c7
+  spec:
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - preference:
+            matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: In
+              values:
+              - "true"
+          weight: 100
+        - preference:
+            matchExpressions:
+            - key: node-role.kubernetes.io/master
+              operator: In
+              values:
+              - "true"
+          weight: 100
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+              - windows
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - system-upgrade-controller
+          topologyKey: kubernetes.io/hostname
+    containers:
+    - env:
+      - name: SYSTEM_UPGRADE_CONTROLLER_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['upgrade.cattle.io/controller']
+      - name: SYSTEM_UPGRADE_CONTROLLER_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: SYSTEM_UPGRADE_CONTROLLER_NODE_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      envFrom:
+      - configMapRef:
+          name: system-upgrade-controller-config
+      image: rancher/system-upgrade-controller:v0.15.2
+      imagePullPolicy: IfNotPresent
+      name: system-upgrade-controller
+      resources: {}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /etc/ssl
+        name: etc-ssl
+        readOnly: true
+      - mountPath: /etc/pki
+        name: etc-pki
+        readOnly: true
+      - mountPath: /etc/ca-certificates
+        name: etc-ca-certificates
+        readOnly: true
+      - mountPath: /tmp
+        name: tmp
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6xdq8
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: k3s-master
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: system-upgrade-controller
+    serviceAccountName: system-upgrade-controller
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - operator: Exists
+    volumes:
+    - hostPath:
+        path: /etc/ssl
+        type: DirectoryOrCreate
+      name: etc-ssl
+    - hostPath:
+        path: /etc/pki
+        type: DirectoryOrCreate
+      name: etc-pki
+    - hostPath:
+        path: /etc/ca-certificates
+        type: DirectoryOrCreate
+      name: etc-ca-certificates
+    - emptyDir: {}
+      name: tmp
+    - name: kube-api-access-6xdq8
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:52:42Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:52:39Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:52:42Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:52:42Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2025-05-13T15:52:39Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://991262767af7eb7d994294fd58c3df70ff4c586480e8a8ae5e31ba95b6d6ca43
+      image: docker.io/rancher/system-upgrade-controller:v0.15.2
+      imageID: docker.io/rancher/system-upgrade-controller@sha256:3e899833afcea9a8788d384ce976df9a05be84636fe5c01ec2307b5bd8fe9810
+      lastState: {}
+      name: system-upgrade-controller
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2025-05-13T15:52:42Z"
+      volumeMounts:
+      - mountPath: /etc/ssl
+        name: etc-ssl
+        readOnly: true
+        recursiveReadOnly: Disabled
+      - mountPath: /etc/pki
+        name: etc-pki
+        readOnly: true
+        recursiveReadOnly: Disabled
+      - mountPath: /etc/ca-certificates
+        name: etc-ca-certificates
+        readOnly: true
+        recursiveReadOnly: Disabled
+      - mountPath: /tmp
+        name: tmp
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6xdq8
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 49.12.200.243
+    hostIPs:
+    - ip: 49.12.200.243
+    - ip: 2a01:4f8:c2c:e5fa::1
+    phase: Running
+    podIP: 10.42.0.9
+    podIPs:
+    - ip: 10.42.0.9
+    qosClass: BestEffort
+    startTime: "2025-05-13T15:52:39Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2025-05-13T15:49:19Z"
+    name: imperative-api-extension
+    namespace: cattle-system
+    resourceVersion: "1740"
+    uid: 6af31517-9195-468a-b9f3-b0a381501b41
+  spec:
+    clusterIP: 10.43.14.11
+    clusterIPs:
+    - 10.43.14.11
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 6666
+      protocol: TCP
+      targetPort: 6666
+    selector:
+      app: rancher
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      field.cattle.io/publicEndpoints: '[{"port":31363,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true},{"port":30185,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true}]'
+      meta.helm.sh/release-name: rancher
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:48:41Z"
+    labels:
+      app: rancher
+      app.kubernetes.io/managed-by: Helm
+      chart: rancher-2.11.1
+      heritage: Helm
+      release: rancher
+    name: rancher
+    namespace: cattle-system
+    resourceVersion: "2053"
+    uid: 03e6bf30-d5db-4bd3-9a5c-eb00252802fa
+  spec:
+    clusterIP: 10.43.146.92
+    clusterIPs:
+    - 10.43.146.92
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      nodePort: 31363
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    - name: https-internal
+      nodePort: 30185
+      port: 443
+      protocol: TCP
+      targetPort: 444
+    selector:
+      app: rancher
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: rancher-webhook
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:51:18Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: rancher-webhook
+    namespace: cattle-system
+    resourceVersion: "3835"
+    uid: 2211dc63-2af8-4935-b102-366597d0e275
+  spec:
+    clusterIP: 10.43.162.225
+    clusterIPs:
+    - 10.43.162.225
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 9443
+    selector:
+      app: rancher-webhook
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      field.cattle.io/publicEndpoints: '[{"port":31363,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true},{"port":30185,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true}]'
+      meta.helm.sh/release-name: rancher
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:48:41Z"
+    generation: 2
+    labels:
+      app: rancher
+      app.kubernetes.io/managed-by: Helm
+      chart: rancher-2.11.1
+      heritage: Helm
+      release: rancher
+    name: rancher
+    namespace: cattle-system
+    resourceVersion: "2530"
+    uid: 20c7e414-3d3c-4793-8995-c0174c2e8caf
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: rancher
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: rancher
+          release: rancher
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                  - windows
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - rancher
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - --no-cacerts
+          - --http-listen-port=80
+          - --https-listen-port=443
+          - --add-local=true
+          env:
+          - name: CATTLE_NAMESPACE
+            value: cattle-system
+          - name: CATTLE_PEER_SERVICE
+            value: rancher
+          - name: AUDIT_LEVEL
+            value: "1"
+          - name: AUDIT_LOG_MAXAGE
+            value: "3"
+          - name: AUDIT_LOG_MAXBACKUP
+            value: "2"
+          - name: AUDIT_LOG_MAXSIZE
+            value: "100"
+          - name: CATTLE_BOOTSTRAP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: bootstrapPassword
+                name: bootstrap-secret
+          - name: CATTLE_AGENT_TLS_MODE
+            value: strict
+          - name: IMPERATIVE_API_DIRECT
+            value: "true"
+          image: rancher/rancher:v2.11.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: rancher
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 6666
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 250m
+              memory: 1Gi
+          startupProbe:
+            failureThreshold: 12
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/auditlog
+            name: audit-log
+        - args:
+          - -F
+          - /var/log/auditlog/rancher-api-audit.log
+          command:
+          - tail
+          image: rancher/mirrored-bci-micro:15.6.24.2
+          imagePullPolicy: IfNotPresent
+          name: rancher-audit-log
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/auditlog
+            name: audit-log
+        dnsPolicy: ClusterFirst
+        priorityClassName: rancher-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: rancher
+        serviceAccountName: rancher
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: cattle.io/os
+          operator: Equal
+          value: linux
+        volumes:
+        - emptyDir: {}
+          name: audit-log
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-05-13T15:49:42Z"
+      lastUpdateTime: "2025-05-13T15:49:42Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-05-13T15:48:41Z"
+      lastUpdateTime: "2025-05-13T15:49:42Z"
+      message: ReplicaSet "rancher-75f877d8bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: rancher-webhook
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:51:18Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: rancher-webhook
+    namespace: cattle-system
+    resourceVersion: "4119"
+    uid: f9a76e65-b527-4989-9a7f-347fba35722e
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: rancher-webhook
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: rancher-webhook
+      spec:
+        containers:
+        - env:
+          - name: STAMP
+          - name: ENABLE_MCM
+            value: "true"
+          - name: CATTLE_PORT
+            value: "9443"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: rancher/rancher-webhook:v0.7.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: rancher-webhook
+          ports:
+          - containerPort: 9443
+            name: https
+            protocol: TCP
+          resources: {}
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: rancher-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: rancher-webhook
+        serviceAccountName: rancher-webhook
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: cattle.io/os
+          operator: Equal
+          value: linux
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-05-13T15:51:39Z"
+      lastUpdateTime: "2025-05-13T15:51:39Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-05-13T15:51:18Z"
+      lastUpdateTime: "2025-05-13T15:51:39Z"
+      message: ReplicaSet "rancher-webhook-55c8df5877" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: system-upgrade-controller
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:52:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: system-upgrade-controller
+    namespace: cattle-system
+    resourceVersion: "4680"
+    uid: 2a1592d1-bad8-4036-a769-79ea0618c21a
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        upgrade.cattle.io/controller: system-upgrade-controller
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: controller
+          app.kubernetes.io/name: system-upgrade-controller
+          upgrade.cattle.io/controller: system-upgrade-controller
+      spec:
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: In
+                  values:
+                  - "true"
+              weight: 100
+            - preference:
+                matchExpressions:
+                - key: node-role.kubernetes.io/master
+                  operator: In
+                  values:
+                  - "true"
+              weight: 100
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                  - windows
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - system-upgrade-controller
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - env:
+          - name: SYSTEM_UPGRADE_CONTROLLER_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels['upgrade.cattle.io/controller']
+          - name: SYSTEM_UPGRADE_CONTROLLER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: SYSTEM_UPGRADE_CONTROLLER_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          envFrom:
+          - configMapRef:
+              name: system-upgrade-controller-config
+          image: rancher/system-upgrade-controller:v0.15.2
+          imagePullPolicy: IfNotPresent
+          name: system-upgrade-controller
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/ssl
+            name: etc-ssl
+            readOnly: true
+          - mountPath: /etc/pki
+            name: etc-pki
+            readOnly: true
+          - mountPath: /etc/ca-certificates
+            name: etc-ca-certificates
+            readOnly: true
+          - mountPath: /tmp
+            name: tmp
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: system-upgrade-controller
+        serviceAccountName: system-upgrade-controller
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - operator: Exists
+        volumes:
+        - hostPath:
+            path: /etc/ssl
+            type: DirectoryOrCreate
+          name: etc-ssl
+        - hostPath:
+            path: /etc/pki
+            type: DirectoryOrCreate
+          name: etc-pki
+        - hostPath:
+            path: /etc/ca-certificates
+            type: DirectoryOrCreate
+          name: etc-ca-certificates
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-05-13T15:52:42Z"
+      lastUpdateTime: "2025-05-13T15:52:42Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-05-13T15:52:39Z"
+      lastUpdateTime: "2025-05-13T15:52:42Z"
+      message: ReplicaSet "system-upgrade-controller-766f9c8f9d" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+      field.cattle.io/publicEndpoints: '[{"port":31363,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true},{"port":30185,"protocol":"TCP","serviceName":"cattle-system:rancher","allNodes":true}]'
+      meta.helm.sh/release-name: rancher
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:48:41Z"
+    generation: 1
+    labels:
+      app: rancher
+      pod-template-hash: 75f877d8bd
+      release: rancher
+    name: rancher-75f877d8bd
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: rancher
+      uid: 20c7e414-3d3c-4793-8995-c0174c2e8caf
+    resourceVersion: "2529"
+    uid: dbf29050-3e7b-462e-81c1-42b2aacb7a1d
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: rancher
+        pod-template-hash: 75f877d8bd
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: rancher
+          pod-template-hash: 75f877d8bd
+          release: rancher
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                  - windows
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - rancher
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - --no-cacerts
+          - --http-listen-port=80
+          - --https-listen-port=443
+          - --add-local=true
+          env:
+          - name: CATTLE_NAMESPACE
+            value: cattle-system
+          - name: CATTLE_PEER_SERVICE
+            value: rancher
+          - name: AUDIT_LEVEL
+            value: "1"
+          - name: AUDIT_LOG_MAXAGE
+            value: "3"
+          - name: AUDIT_LOG_MAXBACKUP
+            value: "2"
+          - name: AUDIT_LOG_MAXSIZE
+            value: "100"
+          - name: CATTLE_BOOTSTRAP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: bootstrapPassword
+                name: bootstrap-secret
+          - name: CATTLE_AGENT_TLS_MODE
+            value: strict
+          - name: IMPERATIVE_API_DIRECT
+            value: "true"
+          image: rancher/rancher:v2.11.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: rancher
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 6666
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 250m
+              memory: 1Gi
+          startupProbe:
+            failureThreshold: 12
+            httpGet:
+              path: /healthz
+              port: 80
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/auditlog
+            name: audit-log
+        - args:
+          - -F
+          - /var/log/auditlog/rancher-api-audit.log
+          command:
+          - tail
+          image: rancher/mirrored-bci-micro:15.6.24.2
+          imagePullPolicy: IfNotPresent
+          name: rancher-audit-log
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/log/auditlog
+            name: audit-log
+        dnsPolicy: ClusterFirst
+        priorityClassName: rancher-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: rancher
+        serviceAccountName: rancher
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: cattle.io/os
+          operator: Equal
+          value: linux
+        volumes:
+        - emptyDir: {}
+          name: audit-log
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: rancher-webhook
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:51:18Z"
+    generation: 1
+    labels:
+      app: rancher-webhook
+      pod-template-hash: 55c8df5877
+    name: rancher-webhook-55c8df5877
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: rancher-webhook
+      uid: f9a76e65-b527-4989-9a7f-347fba35722e
+    resourceVersion: "4117"
+    uid: b28bb50f-f920-48c9-b47a-d620034c3785
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: rancher-webhook
+        pod-template-hash: 55c8df5877
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: rancher-webhook
+          pod-template-hash: 55c8df5877
+      spec:
+        containers:
+        - env:
+          - name: STAMP
+          - name: ENABLE_MCM
+            value: "true"
+          - name: CATTLE_PORT
+            value: "9443"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: rancher/rancher-webhook:v0.7.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: rancher-webhook
+          ports:
+          - containerPort: 9443
+            name: https
+            protocol: TCP
+          resources: {}
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: rancher-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: rancher-webhook
+        serviceAccountName: rancher-webhook
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: cattle.io/os
+          operator: Equal
+          value: linux
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "1"
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: system-upgrade-controller
+      meta.helm.sh/release-namespace: cattle-system
+    creationTimestamp: "2025-05-13T15:52:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/name: system-upgrade-controller
+      pod-template-hash: 766f9c8f9d
+      upgrade.cattle.io/controller: system-upgrade-controller
+    name: system-upgrade-controller-766f9c8f9d
+    namespace: cattle-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: system-upgrade-controller
+      uid: 2a1592d1-bad8-4036-a769-79ea0618c21a
+    resourceVersion: "4679"
+    uid: 8340550a-819a-4a2e-81bd-ea4351e1a2f2
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        pod-template-hash: 766f9c8f9d
+        upgrade.cattle.io/controller: system-upgrade-controller
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: controller
+          app.kubernetes.io/name: system-upgrade-controller
+          pod-template-hash: 766f9c8f9d
+          upgrade.cattle.io/controller: system-upgrade-controller
+      spec:
+        affinity:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - preference:
+                matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: In
+                  values:
+                  - "true"
+              weight: 100
+            - preference:
+                matchExpressions:
+                - key: node-role.kubernetes.io/master
+                  operator: In
+                  values:
+                  - "true"
+              weight: 100
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                  - windows
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - system-upgrade-controller
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - env:
+          - name: SYSTEM_UPGRADE_CONTROLLER_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels['upgrade.cattle.io/controller']
+          - name: SYSTEM_UPGRADE_CONTROLLER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: SYSTEM_UPGRADE_CONTROLLER_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          envFrom:
+          - configMapRef:
+              name: system-upgrade-controller-config
+          image: rancher/system-upgrade-controller:v0.15.2
+          imagePullPolicy: IfNotPresent
+          name: system-upgrade-controller
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/ssl
+            name: etc-ssl
+            readOnly: true
+          - mountPath: /etc/pki
+            name: etc-pki
+            readOnly: true
+          - mountPath: /etc/ca-certificates
+            name: etc-ca-certificates
+            readOnly: true
+          - mountPath: /tmp
+            name: tmp
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: system-upgrade-controller
+        serviceAccountName: system-upgrade-controller
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - operator: Exists
+        volumes:
+        - hostPath:
+            path: /etc/ssl
+            type: DirectoryOrCreate
+          name: etc-ssl
+        - hostPath:
+            path: /etc/pki
+            type: DirectoryOrCreate
+          name: etc-pki
+        - hostPath:
+            path: /etc/ca-certificates
+            type: DirectoryOrCreate
+          name: etc-ca-certificates
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+kind: List
+metadata:
+  resourceVersion: ""

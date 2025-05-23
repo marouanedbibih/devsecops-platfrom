@@ -1,4 +1,4 @@
-hostname: 116.203.208.170
+hostname: kubernetes.marouanedbibih.studio
 
 addLocal: "true"
 debug: false
@@ -37,10 +37,10 @@ ingress:
   enabled: false
 
 service:
-  type: NodePort
-  nodePorts:
-    http: 30080
-    https: 30443
+  type: ClusterIP
+  ports:
+    http: 80
+    https: 443
   annotations: {}
   labels: {}
   loadBalancerSourceRanges: []
