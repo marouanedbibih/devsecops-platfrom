@@ -18,7 +18,9 @@ NGINX Ingress Controller is deployed on the Kubernetes cluster to manage externa
 For the full deployment and configuration guide, see: [NGINX Ingress Guide](./docs/k8s/ingress.md)
 ## 1.2 Sonarqube
 SonarQube is deployed on the Kubernetes cluster to provide continuous inspection of code quality and security. It is installed using a custom values file to configure the database, authentication, and other settings. The SonarQube service is exposed via the NGINX Ingress Controller, allowing access through a domain name. The deployment includes persistent storage for data retention.
-For the full deployment and configuration guide, see: [SonarQube Guide](./sonarqube/sonarqube-values.yaml)
+
+For the full deployment and configuration guide, see: [SonarQube Guide](./kubernetes/sonarqube/sonarqube.md)
+
 ## 1.3 Jenkins
 Jenkins is deployed on the Kubernetes cluster to automate the software development process through continuous integration and continuous delivery (CI/CD). It is installed using a custom values file to configure plugins, security settings, and persistent storage. The Jenkins service is exposed via the NGINX Ingress Controller, allowing access through a domain name. The deployment includes persistent storage for build artifacts and configurations.
 For the full deployment and configuration guide, see: [Jenkins Guide](./jenkins/jenkins.md)
