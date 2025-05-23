@@ -1,49 +1,73 @@
-# SonarQube Edition (Community)
-edition: "community"
+## Authentication credentials
+auth:
+  adminUsername: admin
+  adminPassword: admin
 
-# Database Configuration
+## SonarQube internal password tracking
+sonarqubePassword: Marouane@2001
+
+## PostgreSQL subchart configuration
 postgresql:
   enabled: true
   auth:
-    username: "sonar"
-    password: "sonar"
-    database: "sonarqube"
+    username: sonar
+    password: sonar
+    database: sonar
   primary:
     persistence:
+      enabled: true
+      storageClass: "longhorn"
+      accessModes:
+        - ReadWriteMany
       size: 10Gi
 
-# Admin Credentials
-sonarqubeConfig:
-  sonarProperties:
-    sonar.forceAuthentication: true
-  adminPassword: "admin"  # Change this to your preferred admin password
-  monitoringPasscode: "passcode"
-
-# Resource Allocation
-resources:
-  requests:
-    memory: "1Gi"
-    cpu: "500m"
-  limits:
-    memory: "2Gi"
-    cpu: "1000m"
-
-
-# Persistence
-persistence:
-  enabled: true
-  storageClass: "longhorn" 
-  size: 5Gi
-
-# Expose SonarQube using NodePort
+## Service exposure via NodePort
 service:
   type: NodePort
+  nodePorts:
+    http: 30090
+    elastic: 30091
   ports:
-    http:
-      port: 9000
-      nodePort: 30090
-    elastic:
-      port: 9001
-      nodePort: 30091
+    http: 9000
+    elastic: 9001
 
-jvmOpts: "-Xmx1G -Xms1G"
+## SonarQube persistence
+persistence:
+  enabled: true
+  storageClass: "longhorn"
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+## Ingress is disabled (NodePort is used)
+ingress:
+  enabled: false
+
+## Disable NetworkPolicy for simplicity (can cause port issues on local clusters)
+networkPolicy:
+  enabled: false
+
+## Resource allocation
+resources:
+  requests:
+    cpu: 2
+    memory: 2Gi
+  limits:
+    cpu: 4
+    memory: 4Gi
+
+
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 180
+  periodSeconds: 10
+
+jvmOpts: "-Xmx1024m -Xms512m"
+
+# For embedded Elasticsearch
+elasticsearch:
+  javaOpts: "-Xms512m -Xmx1024m"
+
+
+sonarProperties:
+  "sonar.log.level": "DEBUG"

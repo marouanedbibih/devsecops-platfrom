@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 200M
+        reservations:
+          cpus: "0.1"
+          memory: 100M
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - db-net
+      - proxy
+
+  mysql:
+    image: mysql:8.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 200M
+        reservations:
+          cpus: "0.1"
+          memory: 100M
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - db-net
+      - proxy
+
+  mongo:
+    image: mongo:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 200M
+        reservations:
+          cpus: "0.1"
+          memory: 100M
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - db-net
+      - proxy
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mongo_data:
+
+networks:
+  db-net:
+    driver: overlay
+    name: db-net
+  proxy:
+    external: true
+    name: proxy
