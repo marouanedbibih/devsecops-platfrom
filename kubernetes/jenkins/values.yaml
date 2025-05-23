@@ -18,10 +18,7 @@ persistence:
   size: 8Gi
 
 service:
-  type: NodePort
-  nodePorts:
-    http: 30080
-    https: 30443
+  type: ClusterIP
   ports:
     http: 8080
     https: 8443
