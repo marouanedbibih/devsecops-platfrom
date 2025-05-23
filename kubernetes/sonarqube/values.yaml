@@ -1,0 +1,50 @@
+USER-SUPPLIED VALUES:
+auth:
+  adminPassword: admin
+  adminUsername: admin
+elasticsearch:
+  javaOpts: -Xms512m -Xmx1024m
+ingress:
+  enabled: false
+jvmOpts: -Xmx1024m -Xms512m
+networkPolicy:
+  enabled: false
+persistence:
+  accessModes:
+  - ReadWriteMany
+  enabled: true
+  size: 10Gi
+  storageClass: longhorn
+postgresql:
+  auth:
+    database: sonar
+    password: sonar
+    username: sonar
+  enabled: true
+  primary:
+    persistence:
+      accessModes:
+      - ReadWriteMany
+      enabled: true
+      size: 10Gi
+      storageClass: longhorn
+resources:
+  limits:
+    cpu: 4
+    memory: 4Gi
+  requests:
+    cpu: 2
+    memory: 2Gi
+service:
+  type: ClusterIP
+  ports:
+    elastic: 9001
+    http: 9000
+
+sonarProperties:
+  sonar.log.level: DEBUG
+sonarqubePassword: Marouane@2001
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 180
+  periodSeconds: 10
