@@ -30,11 +30,11 @@ postgresql:
       storageClass: longhorn
 resources:
   limits:
-    cpu: 4
-    memory: 4Gi
+    cpu: 6
+    memory: 6Gi
   requests:
-    cpu: 2
-    memory: 2Gi
+    cpu: 3
+    memory: 3Gi
 service:
   type: ClusterIP
   ports:
@@ -46,5 +46,10 @@ sonarProperties:
 sonarqubePassword: Marouane@2001
 startupProbe:
   enabled: true
-  initialDelaySeconds: 180
+  initialDelaySeconds: 300
   periodSeconds: 10
+  failureThreshold: 30
+
+replicats:
+  enabled: false
+  replicas: 2

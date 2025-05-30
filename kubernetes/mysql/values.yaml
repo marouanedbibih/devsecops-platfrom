@@ -1,0 +1,313 @@
+# Production-ready MySQL Configuration for Bitnami Helm Chart
+# This configuration creates a standalone MySQL instance with custom database and user
+
+## Global Configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  defaultStorageClass: ""
+
+## Common Parameters
+nameOverride: ""
+fullnameOverride: ""
+kubeVersion: ""
+clusterDomain: cluster.local
+commonLabels: {}
+commonAnnotations: {}
+
+## MySQL Image Configuration
+image:
+  registry: docker.io
+  repository: bitnami/mysql
+  tag: 8.0.0
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+## MySQL Configuration
+architecture: standalone  # Standalone setup (no replication)
+
+## Authentication Configuration
+auth:
+  # Root user configuration
+  rootPassword: "root"  # Will be auto-generated
+  createDatabase: true
+  database: "my_database"  # Your custom database name
+  username: "marouane"        # Your custom user
+  password: "marouanedbibihpassword"             # Will be auto-generated
+  existingSecret: ""       # Leave empty to auto-generate secrets
+  usePasswordFiles: false
+
+## Primary MySQL Configuration (since we're using standalone)
+primary:
+  ## MySQL Primary configuration
+  configuration: |-
+    [mysqld]
+    default_authentication_plugin=mysql_native_password
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/opt/bitnami/mysql
+    plugin_dir=/opt/bitnami/mysql/lib/plugin
+    port=3306
+    socket=/opt/bitnami/mysql/tmp/mysql.sock
+    datadir=/bitnami/mysql/data
+    tmpdir=/opt/bitnami/mysql/tmp
+    max_allowed_packet=16M
+    bind-address=*
+    pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+    log-error=/opt/bitnami/mysql/logs/mysqld.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/opt/bitnami/mysql/logs/mysqld-slow.log
+    long_query_time=10.0
+    
+    # Performance tuning
+    innodb_buffer_pool_size=512M
+    innodb_log_file_size=128M
+    innodb_flush_log_at_trx_commit=1
+    innodb_flush_method=O_DIRECT
+    max_connections=200
+    
+    # Binary logging (useful for backups)
+    log-bin=mysql-bin
+    binlog_format=ROW
+    expire_logs_days=7
+
+  ## Existing ConfigMap with MySQL Primary configuration
+  existingConfigmap: ""
+
+  ## Persistence configuration
+  persistence:
+    enabled: true
+    storageClass: ""  # Use default storage class
+    accessModes:
+      - ReadWriteOnce
+    size: 8Gi  # Your requested 8Gi volume size
+    annotations: {}
+    selector: {}
+
+  ## Resource Configuration
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  ## Pod Security Context
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+    runAsUser: 1001
+
+  ## Container Security Context
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+
+  ## Liveness and Readiness Probes
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+
+  ## Custom Liveness, Readiness, and Startup probes
+  customLivenessProbe: {}
+  customReadinessProbe: {}
+  customStartupProbe: {}
+
+  ## Pod Labels and Annotations
+  podLabels:
+    app: mysql
+    tier: database
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9104"
+
+  ## Pod Affinity
+  podAffinityPreset: ""
+  podAntiAffinityPreset: soft
+  nodeAffinityPreset:
+    type: ""
+    key: ""
+    values: []
+
+  ## Node selector, tolerations, and priority
+  nodeSelector: {}
+  tolerations: []
+  priorityClassName: ""
+
+  ## Extra volumes and volume mounts
+  extraVolumes: []
+  extraVolumeMounts: []
+
+  ## Extra containers (sidecars)
+  sidecars: []
+
+  ## Init containers
+  initContainers: []
+
+## Service Configuration
+service:
+  type: NodePort
+  ports:
+    mysql: 3306
+  nodePorts:
+    mysql: 30306  
+
+## Network Policy Configuration
+networkPolicy:
+  enabled: true
+  allowExternal: true  # Allow external connections
+  allowExternalEgress: true
+  extraIngress: []
+  extraEgress: []
+
+## Volume Permissions (init container to fix permissions)
+volumePermissions:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/os-shell
+    tag: 12-debian-12-r16
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+## Metrics Configuration (Prometheus)
+metrics:
+  enabled: true  # Enable Prometheus metrics
+  image:
+    registry: docker.io
+    repository: bitnami/mysqld-exporter
+    tag: 0.15.1-debian-12-r1
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+
+  ## Metrics container resource requests and limits
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  ## MySQL metrics container liveness and readiness probes
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+
+  ## Prometheus Service Monitor
+  serviceMonitor:
+    enabled: false  # Set to true if you have Prometheus Operator
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: ""
+    labels: {}
+    selector: {}
+    relabelings: []
+    metricRelabelings: []
+    honorLabels: false
+    jobLabel: ""
+
+  ## Prometheus Rules
+  prometheusRule:
+    enabled: false  # Set to true if you want alerting rules
+    namespace: ""
+    labels: {}
+    rules: []
+
+## ServiceAccount
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+  automountServiceAccountToken: false
+
+## RBAC
+rbac:
+  create: true
+  rules: []
+
+## Pod Disruption Budget
+pdb:
+  create: true
+  minAvailable: 1
+  maxUnavailable: ""
+
+## TLS Configuration (Disabled as requested)
+tls:
+  enabled: false  # TLS disabled as requested
+  certificatesSecret: ""
+  certFilename: ""
+  certKeyFilename: ""
+  certCAFilename: ""
+
+## Extra environment variables
+extraEnvVars: []
+extraEnvVarsCM: ""
+extraEnvVarsSecret: ""

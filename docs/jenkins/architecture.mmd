@@ -1,0 +1,37 @@
+flowchart TB
+  %% Nodes
+  subgraph "Kubernetes Cluster"
+    subgraph "Jenkins Namespace"
+      A["Jenkins Controller\nPorts:\n• 8080 (UI)\n• 50000 (TCP or WS)"]
+      B["Kubernetes API Server\n- Pod Lifecycle\n- RBAC\n- Scheduling\n- Discovery"]
+      C["Persistent Volume\n(Jenkins Home)"]
+      D["Services\n• jenkins (8080)\n• jenkins-agent (50000)"]
+
+      subgraph "Dynamic Agent Pods"
+        P1["Agent Pod 1\n- jnlp\n- build tools"]
+        P2["Agent Pod 2\n- jnlp\n- build tools"]
+        P3["Agent Pod 3\n- jnlp\n- build tools"]
+      end
+
+      A -->|Manages Pods| B
+      A --> C
+      D --> A
+      B --> P1
+      B --> P2
+      B --> P3
+    end
+  end
+
+  %% Styling Classes
+  classDef controller fill:#d24939,stroke:#a31621,color:#ffffff;
+  classDef api fill:#326ce5,stroke:#003f8c,color:#ffffff;
+  classDef storage fill:#38a169,stroke:#22543d,color:#ffffff;
+  classDef service fill:#f6ad55,stroke:#c05621,color:#000000;
+  classDef agent fill:#63b3ed,stroke:#2b6cb0,color:#ffffff;
+
+  %% Assign styles to nodes
+  class A controller
+  class B api
+  class C storage
+  class D service
+  class P1,P2,P3 agent
