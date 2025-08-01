@@ -1,0 +1,14 @@
+# jenkins-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-deployer-binding
+  namespace: hyundai-sales  # Apply this to each hyundai-sales namespace
+subjects:
+- kind: ServiceAccount
+  name: jenkins
+  namespace: jenkins-system
+roleRef:
+  kind: ClusterRole
+  name: jenkins-deployer
+  apiGroup: rbac.authorization.k8s.io

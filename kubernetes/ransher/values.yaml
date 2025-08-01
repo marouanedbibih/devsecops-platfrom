@@ -1,4 +1,4 @@
-hostname: kubernetes.marouanedbibih.studio
+hostname: rancher.marouanedbibih.engineer
 
 addLocal: "true"
 debug: false
@@ -54,7 +54,7 @@ noProxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local
 resources:
   limits:
     cpu: 1
-    memory: 3Gi
+    memory: 2Gi
   requests:
     cpu: 250m
     memory: 1Gi

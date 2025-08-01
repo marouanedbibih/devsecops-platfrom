@@ -186,7 +186,7 @@ postgresql:
     enablePostgresUser: true
     postgresPassword: "Marouane@2001"  # Auto-generated if empty
     username: harbor
-    password: ""  # Auto-generated if empty
+    password: "harborpassword"  # Auto-generated if empty
     database: registry
   architecture: standalone
   primary:
@@ -200,7 +200,7 @@ postgresql:
     persistence:
       enabled: true
       size: 20Gi
-      # storageClass: "hcloud-volumes"  # Uncomment and adjust for your cluster
+      storageClass: ""  # Uncomment and adjust for your cluster
 
 ## Redis configuration
 redis:
@@ -208,7 +208,7 @@ redis:
   architecture: standalone
   auth:
     enabled: true
-    password: ""  # Auto-generated if empty
+    password: "raborredis"  # Auto-generated if empty
   master:
     resources:
       limits:
@@ -220,7 +220,7 @@ redis:
     persistence:
       enabled: true
       size: 8Gi
-      # storageClass: "hcloud-volumes"  # Uncomment and adjust for your cluster
+      storageClass: ""  # Uncomment and adjust for your cluster
 
 ## Persistence configuration
 persistence:

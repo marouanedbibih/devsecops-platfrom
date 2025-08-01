@@ -11,10 +11,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - rancher.marouanedbibih.studio
+        - rancher.marouanedbibih.engineer
       secretName: rancher-tls
   rules:
-    - host: rancher.marouanedbibih.studio
+    - host: rancher.marouanedbibih.engineer
       http:
         paths:
           - path: /
