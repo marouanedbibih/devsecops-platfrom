@@ -1,0 +1,298 @@
+# Harbor Helm Values Configuration
+# Using Bitnami Harbor Chart
+
+## Global parameters
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  defaultStorageClass: ""  # Uses cluster default if not specified
+  security:
+    allowInsecureImages: true
+
+## Common parameters
+nameOverride: ""
+fullnameOverride: ""
+clusterDomain: cluster.local
+
+## Harbor Admin Password
+adminPassword: "Marouane@2001"  # CHANGE THIS!
+
+## External URL (must match your ingress hostname)
+externalURL: https://harbor.marouanedbibih.studio
+
+## Proxy settings (if needed)
+proxy:
+  httpProxy: ""
+  httpsProxy: ""
+  noProxy: 127.0.0.1,localhost,.local,.internal
+  components:
+    - core
+    - jobservice
+    - trivy
+
+## Log level
+logLevel: info
+
+## TLS between components
+internalTLS:
+  enabled: false
+
+## Exposure Type - Set to ingress for Ingress Controller
+exposureType: ingress
+
+## Service configuration (not used with ingress)
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+    https: 443
+
+## Ingress configuration
+ingress:
+  core:
+    ## We'll use a separate Ingress manifest for more control
+    enabled: false
+
+## Nginx proxy (disabled when using ingress)
+nginx:
+  enabled: false
+
+## Portal configuration
+portal:
+  image:
+    registry: docker.io
+    repository: bitnami/harbor-portal
+    tag: 2.10.0-debian-12-r0
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+## Core configuration
+core:
+  image:
+    registry: docker.io
+    repository: bitnami/harbor-core
+    tag: 2.10.0-debian-12-r0
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  secretName: ""
+  secret: ""
+  xsrfKey: ""
+
+## Jobservice configuration
+jobservice:
+  image:
+    registry: docker.io
+    repository: bitnami/harbor-jobservice
+    tag: 2.10.0-debian-12-r0
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  jobLoggers:
+    - file
+    - database
+  secret: ""
+
+## Registry configuration
+registry:
+  server:
+    image:
+      registry: docker.io
+      repository: bitnami/harbor-registry
+      tag: 2.10.0-debian-12-r0
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  controller:
+    image:
+      registry: docker.io
+      repository: bitnami/harbor-registryctl
+      tag: 2.10.0-debian-12-r0
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  credentials:
+    username: "harbor_registry_user"
+    password: ""  # Auto-generated if empty
+    htpasswd: ""  # Auto-generated if empty
+  secret: ""
+  relativeurls: false
+
+## Trivy configuration
+trivy:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/harbor-trivy-adapter
+    tag: 2.10.0-debian-12-r12
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  debugMode: false
+  vulnType: "os,library"
+  severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+  ignoreUnfixed: false
+  insecure: false
+  gitHubToken: ""
+  skipUpdate: false
+  offlineScan: false
+  timeout: 5m0s
+
+## External database (using internal by default)
+externalDatabase:
+  host: ""
+  port: 5432
+  username: ""
+  password: ""
+  coreDatabase: registry
+  sslmode: disable
+
+## External Redis (using internal by default)
+externalRedis:
+  enabled: false
+
+## PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "Marouane@2001"  # Auto-generated if empty
+    username: harbor
+    password: "harborpassword"  # Auto-generated if empty
+    database: registry
+  architecture: standalone
+  primary:
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""  # Uncomment and adjust for your cluster
+
+## Redis configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: "raborredis"  # Auto-generated if empty
+  master:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: ""  # Uncomment and adjust for your cluster
+
+## Persistence configuration
+persistence:
+  enabled: true
+  resourcePolicy: "keep"  # Important: Retains PVCs on helm uninstall
+  persistentVolumeClaim:
+    registry:
+      existingClaim: ""
+      storageClass: ""  # Uses default if empty
+      subPath: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 100Gi  # Adjust based on your needs
+      annotations: {}
+    jobservice:
+      existingClaim: ""
+      storageClass: ""  # Uses default if empty
+      subPath: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+      annotations: {}
+    trivy:
+      storageClass: ""  # Uses default if empty
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+      annotations: {}
+  
+  ## Image/Chart storage backend
+  imageChartStorage:
+    type: filesystem  # Options: filesystem, azure, gcs, s3, swift, oss
+    filesystem:
+      rootdirectory: /storage
+      maxthreads: 100
+
+## Metrics and monitoring
+metrics:
+  enabled: true
+  core:
+    path: /metrics
+    port: 8001
+  registry:
+    path: /metrics
+    port: 8001
+  jobservice:
+    path: /metrics
+    port: 8001
+  exporter:
+    path: /metrics
+    port: 8001
+
+## Pod Security Policies
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+  runAsUser: 1001
+
+containerSecurityContext:
+  enabled: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  runAsNonRoot: true
+  runAsUser: 1001
+  readOnlyRootFilesystem: false
+
+## Update strategy
+updateStrategy:
+  type: RollingUpdate
+
+## Node Affinity (optional)
+nodeSelector: {}
+tolerations: []
+affinity: {}

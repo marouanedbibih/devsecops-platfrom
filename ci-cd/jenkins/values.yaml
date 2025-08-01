@@ -1,0 +1,182 @@
+global:
+  defaultStorageClass: longhorn
+  security:
+    allowInsecureImages: true
+
+jenkinsUser: admin
+jenkinsPassword: adminpassword
+
+plugins:
+  - git
+  - workflow-aggregator
+  - kubernetes
+  - configuration-as-code
+  - credentials
+  - credentials-binding
+  - pipeline-stage-view
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+controller:
+  servicePort: 8080
+  agentListenerPort: 50000
+  jenkinsUrl: http://jenkins.jenkins.svc.cluster.local:8080
+  jenkinsTunnel: jenkins-agent-listener.jenkins.svc.cluster.local:50000
+
+  rbac:
+    create: true
+
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    privileged: false
+
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+
+  configurationAsCode:
+    enabled: false
+
+service:
+  type: ClusterIP
+  ports:
+    http: 8080
+    https: 8443
+    agentListener: 50000
+
+agent:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: jenkins/inbound-agent
+    tag: latest-jdk11
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    privileged: false
+    allowPrivilegeEscalation: false
+
+agentListenerService:
+  enabled: true
+  ports:
+    agentListener: 50000
+  type: ClusterIP
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 180
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  runAsNonRoot: true
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  privileged: false
+
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+
+resources:
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+
+updateStrategy:
+  type: RollingUpdate
+
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  extraIngress:
+    - from:
+        - podSelector: {}
+      ports:
+        - port: 50000
+          protocol: TCP
+
+ingress:
+  enabled: false
+
+extraVolumes:
+  - name: empty-init-dir
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: empty-init-dir
+    mountPath: /docker-entrypoint-initdb.d
+    
+configurationAsCode:
+    enabled: true
+    configurations:
+      - |
+        jenkins:
+          clouds:
+            - kubernetes:
+                name: "kubernetes"
+                serverUrl: "https://kubernetes.default.svc.cluster.local"
+                namespace: "jenkins"
+                jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080"
+                jenkinsTunnel: "jenkins-agent-listener.jenkins.svc.cluster.local:50000"
+                skipTlsVerify: true
+                containerCapStr: "10"
+                retentionTimeout: 60
+                connectTimeout: 0
+                readTimeout: 0
+                templates:
+                  - name: "jnlp-agent"
+                    namespace: "jenkins"
+                    label: "jnlp-agent"
+                    nodeUsageMode: "NORMAL"
+                    containers:
+                      - name: "jnlp"
+                        image: "jenkins/inbound-agent:latest-jdk11"
+                        alwaysPullImage: true
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "250m"
+                        resourceRequestMemory: "512Mi"
+                        resourceLimitCpu: "500m"
+                        resourceLimitMemory: "1Gi"

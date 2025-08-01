@@ -1,0 +1,41 @@
+defaultSettings:
+  defaultReplicaCount: 3
+  storageOverProvisioningPercentage: 200
+  storageMinimalAvailablePercentage: 10
+  upgradeChecker: false
+  backupstorePollInterval: 300
+  createDefaultDiskLabeledNodes: true
+  defaultDataPath: /var/lib/longhorn/
+  defaultDataLocality: best-effort
+  replicaSoftAntiAffinity: true
+  replicaAutoBalance: least-effort
+  guaranteedEngineCPU: 0.25
+  guaranteedReplicaCPU: 0.25
+
+persistence:
+  defaultClassReplicaCount: 3
+  defaultClass: true
+
+metrics:
+  serviceMonitor:
+    enabled: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+annotations:
+  storageclass.kubernetes.io/is-default-class: "true"
+
+
+service:
+  ui:
+    type: NodePort
+    nodePort: 30001
+
+ingress:
+  enabled: false

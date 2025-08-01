@@ -1,0 +1,154 @@
+# consul-values.yaml
+## Global parameters
+global:
+  imageRegistry: ""
+  storageClass: ""  # Use default storage class
+
+## Consul configuration
+datacenterName: dc1
+domain: consul
+raftMultiplier: "1"
+
+# Generate gossip key with: consul keygen
+# For production, generate a real key and use it
+gossipKey: ""
+
+# Replica count for HA setup
+replicaCount: 2
+
+# Resource configuration for production
+resourcesPreset: "small"  # or use custom resources below
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+# Pod configuration
+podAnnotations: {}
+podLabels: {}
+
+# Security Context
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+  fsGroupChangePolicy: Always
+
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  runAsNonRoot: true
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: "RuntimeDefault"
+
+# Service configuration
+service:
+  enabled: true
+  type: ClusterIP
+  ports:
+    http: 80
+  annotations: {}
+
+# Ingress configuration 
+ingress:
+  enabled: false
+  # hostname: consul.marouanedbibih.studio
+  # ingressClassName: "nginx"
+  # path: /
+  # pathType: Prefix
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  #   nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  #   # Security headers
+  #   nginx.ingress.kubernetes.io/configuration-snippet: |
+  #     add_header X-Frame-Options "SAMEORIGIN" always;
+  #     add_header X-Content-Type-Options "nosniff" always;
+  #     add_header X-XSS-Protection "1; mode=block" always;
+  #     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+  # tls: true
+  # extraTls:
+  #   - hosts:
+  #       - consul.marouanedbibih.studio
+  #     secretName: consul-tls
+
+# Persistence configuration
+persistence:
+  enabled: true
+  storageClass: ""  # Use default storage class
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
+
+# Network Policy
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true
+
+# Pod Disruption Budget
+pdb:
+  create: true
+  maxUnavailable: 1
+
+# Service Account
+serviceAccount:
+  create: true
+  automountServiceAccountToken: false
+  annotations: {}
+
+# Health checks
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+# Metrics (optional)
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+# Anti-affinity for HA
+podAntiAffinityPreset: soft
+
+# Node affinity (optional)
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+
+# Tolerations (if needed)
+tolerations: []
+
+# Node selector (if needed)
+nodeSelector: {}
